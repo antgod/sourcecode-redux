@@ -63,7 +63,7 @@ function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, une
 //  r2
 //})
 
-// 这样store就有两个键：postsBySubreddit和selectedsubreddit，分别存储每个reducer的返回结果
+// 这样store就有两个键：r1和r2，分别存储每个reducer的返回结果
 // 也就是说，使用combineReducers把全局store按命名空间进行隔离。隔离的方式就是reducer的名字。
 // { r1: state, r2: state }
 export default function combineReducers(reducers) {
@@ -114,11 +114,11 @@ export default function combineReducers(reducers) {
     var hasChanged = false
     var nextState = {}
     for (var i = 0; i < finalReducerKeys.length; i++) {
-      // 取出每个reducer的key, postsBySubreddit, selectedsubreddit
+      // 每个reducer的key, r1
       var key = finalReducerKeys[i]
-      // 取出每个reducer的值, postsBySubreddit函数, selectedsubreddit函数
+      // 每个reducer的值, r1函数
       var reducer = finalReducers[key]
-      // 取得上一个key的状态
+      // key的上一次状态，也就是state['r1']
       var previousStateForKey = state[key]
       // 执行每个reducer，把上一次的状态和action传入，返回一个新的状态
       var nextStateForKey = reducer(previousStateForKey, action)
@@ -131,6 +131,7 @@ export default function combineReducers(reducers) {
       // 判断是否变化
       hasChanged = hasChanged || nextStateForKey !== previousStateForKey
     }
+    // 如果有变化，返回变化后的状态
     return hasChanged ? nextState : state
   }
 }

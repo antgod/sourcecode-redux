@@ -1,4 +1,5 @@
 function bindActionCreator(actionCreator, dispatch) {
+  // 包装一层dispatch，返回高阶函数，因为原来的actionCreator是可以传递参数的函数，包装后不能破坏原结构
   return (...args) => dispatch(actionCreator(...args))
 }
 
@@ -35,9 +36,9 @@ export default function bindActionCreators(actionCreators, dispatch) {
   var keys = Object.keys(actionCreators)
   var boundActionCreators = {}
   for (var i = 0; i < keys.length; i++) {
-    // addTodo
+    // 第一次执行key = addTodo(string)
     var key = keys[i]
-    // fn
+    // actionCreator = addTodo(function)
     var actionCreator = actionCreators[key]
     if (typeof actionCreator === 'function') {
       // 包装函数：在原函数上增加dispatch包装。

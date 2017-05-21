@@ -14,6 +14,7 @@ export var ActionTypes = {
 // preloadedState:初始化状态，如果是函数，认定为中间件。enhancer:中间件
 export default function createStore(reducer, preloadedState, enhancer) {
 
+  // 如果初始化传入的是函数并且没有传入中间件，则初始化函数设为中间件
   if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
     enhancer = preloadedState;
     preloadedState = undefined;
@@ -33,7 +34,6 @@ export default function createStore(reducer, preloadedState, enhancer) {
 
 
   // currentState: 当前数据
-  // currentListeners:
   var currentReducer = reducer                      // 当前reducer
   var currentState = preloadedState                 // 初始化状态
   var currentListeners = []                         // 当前订阅的事件
@@ -74,6 +74,7 @@ export default function createStore(reducer, preloadedState, enhancer) {
       var index = nextListeners.indexOf(listener)
       nextListeners.splice(index, 1)
     }
+
   }
 
   /* 发布函数 */
@@ -105,7 +106,8 @@ export default function createStore(reducer, preloadedState, enhancer) {
       isDispatching = false
     }
 
-    // 每次发布时候，更新当前订阅函数。发布的时候再订阅，会把下次订阅的函数从当前函数拷贝一份，防止当前执行发布函数受影响
+    // 每次发布时候，更新当前订阅函数。
+    // 如果发布的时候再订阅，会把下次订阅的函数从当前函数拷贝一份，防止当前执行发布函数受影响
     var listeners = currentListeners = nextListeners
 
     // 依次执行每个订阅函数
@@ -129,6 +131,7 @@ export default function createStore(reducer, preloadedState, enhancer) {
   }
 
   function observable() {
+    // subscribe 就是上面的那个 subscribe订阅函数
     var outerSubscribe = subscribe
     return {
       subscribe(observer) {
@@ -137,12 +140,14 @@ export default function createStore(reducer, preloadedState, enhancer) {
         }
 
         function observeState() {
+          // 调用 observer 的 next 方法，获取当前 state。
           if (observer.next) {
             observer.next(getState())
           }
         }
 
         observeState()
+        // 将 observeState 当作一个 listener，dispatch 之后自动调用 observer 的 next 方法。
         var unsubscribe = outerSubscribe(observeState)
         return { unsubscribe }
       },
